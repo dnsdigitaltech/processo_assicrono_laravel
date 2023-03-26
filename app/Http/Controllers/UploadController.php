@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Jobs\ProcessaImportacao;
 class UploadController extends Controller
 {
     public function importarPares($path){
@@ -14,7 +14,7 @@ class UploadController extends Controller
             $colunas = explode("|", $linha);
             if( (int)$colunas[0] % 2 == 0){
                 fwrite($pares,$linha);
-                sleep(5);
+                sleep(1);
             }
         }
         fclose($file);
@@ -24,9 +24,9 @@ class UploadController extends Controller
 
     public function store(Request $request)
     {
-        //dd($request->arquivo->store('products'));
         $path = $request->arquivo->store('/public/products');
         $this->importarPares($path);
-        echo "Navegador Liberado...";
+        ProcessaImportacao::dispatch($this, $path);
+        //echo "Navegador Liberado...";
     }
 }
